@@ -37,7 +37,7 @@ template/             a scene page: engine, glass-card styles, chapter veils, de
 2. Put this folder where Claude Code finds skills, for example:
 
 ```bash
-git clone <this repo> ~/.claude/skills/video-edit
+git clone https://github.com/YildizDikme/claude-video-edit ~/.claude/skills/video-edit
 ```
 
 3. Try the template without any footage:
@@ -106,7 +106,7 @@ Claude duymaz. Bu skill sesle ilgili her şeyi ölçerek yapar: Whisper kelime z
 Gereksinimler: Python 3.10+, numpy, ffmpeg, Node 20+, Chrome ve bir Whisper (`pip install faster-whisper` ya da Apple Silicon'da `brew install whisperkit-cli`).
 
 ```bash
-git clone <bu repo> ~/.claude/skills/video-edit
+git clone https://github.com/YildizDikme/claude-video-edit ~/.claude/skills/video-edit
 ```
 
 Görüntü olmadan şablonu denemek için `python3 scripts/serve.py --project . --port 5600` çalıştırıp http://127.0.0.1:5600/template/?demo adresini açın, Space'e basın.
