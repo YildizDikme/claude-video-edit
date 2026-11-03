@@ -82,7 +82,9 @@
   const hasVideo = () => video && video.src && !video.dataset.none;
 
   function apply(t) {
-    TL.seek(Math.min(t, TL.duration() || t), false);
+    // At least 0.1 ms: a paused timeline that is still at 0 does not render a seek to 0, so the TL.set(…, 0)
+    // calls that hide later cards never ran and every card showed on the first frame (the one YouTube shows).
+    TL.seek(Math.max(1e-4, Math.min(t, TL.duration() || t)), false);
     frameHooks.forEach((f) => f(t));
   }
 

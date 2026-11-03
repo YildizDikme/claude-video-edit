@@ -1,6 +1,6 @@
 ---
 name: video-edit
-description: Edit talking-head, tutorial, explainer and Short videos with Claude Code. Word-accurate cuts from raw takes, motion graphics built as HTML + GSAP (optionally three.js) pages locked to the spoken words, sound effects synthesized in Python, honest loudness handling and frame-exact rendering. Use when the user wants to cut raw footage, remove retakes and pauses, add animated cards or chapters, add or design sound effects, fix loudness, or render a final edit.
+description: Edit talking-head, tutorial, explainer and Short videos with Claude Code. Word-accurate cuts from raw takes, motion graphics built as HTML + GSAP (optionally three.js) pages locked to the spoken words, sound effects synthesized in Python, honest loudness handling and frame-exact rendering. On first use it asks for the creator's name, colours, logo and preferences and remembers them for every later video. Use when the user wants to cut raw footage, remove retakes and pauses, add animated cards or chapters, add or design sound effects, fix loudness, or render a final edit.
 ---
 
 # Video edit
@@ -13,21 +13,42 @@ This skill turns raw footage into a finished edit together with a human editor. 
 - **The human ear is the final check.** Whether a cut clips a word, whether an effect is too loud, whether a voice sounds muffled: the user decides. Your job is to make every problem measurable and every fix fast.
 - **The first pass is never the final edit.** Work stage by stage, hand over a preview after each stage, and expect corrections. Most good results come from short review loops, not from one long autonomous run.
 - **Sync by construction, not by ear.** Animations and sound effects are triggered from the same timeline clock, and that clock is derived from the measured word times. That is how effects land on the picture without you hearing them.
+- **Be creative, on purpose.** Every visual should help the viewer understand, and nothing should look like a template. See "Creative direction" below.
 
 ## Paths
 
 Commands run from the user's project folder. `$SKILL` is the folder this file is in (for example `~/.claude/skills/video-edit`); set it once in the shell: `SKILL=~/.claude/skills/video-edit`.
 
-## Before you start: ask
+## First run: get to know the creator
 
-Ask these once, keep the answers in `work/NOTES.md`:
+Look for the creator profile at `~/.claude/video-edit/profile.md`. If it does not exist, this is the first run: introduce yourself in one short message and ask these together. The user may skip any of them.
+
+1. **Name on screen:** the name and a one-line role for the lower third and the end screen.
+2. **Channel:** channel name, platforms (YouTube, Instagram, TikTok…), the language they speak in the videos, and whether they want a second language on screen.
+3. **Colours:** the colours they like (one accent and one or two support colours) and colours they never want. A thumbnail or a brand page works as an answer too.
+4. **Logo:** a logo file (SVG, or PNG with transparency), and where it may appear: lower third, end screen, or nowhere.
+5. **Font:** a brand font, or the default.
+6. **Usual videos:** educational, talk, tutorial, Shorts, and how calm or energetic they like the motion.
+7. **Sound:** sound effects never, only when a sound is the thing being shown, or also quietly on transitions. Background music yes or no.
+8. **Never:** things they dislike (glows, italics, emoji, fast zooms, a colour…).
+
+Save the answers to `~/.claude/video-edit/profile.md` (format in `reference/profile.md`) and copy the logo into `~/.claude/video-edit/brand/`. Show the saved profile in a few lines and ask whether it is right.
+
+From then on:
+
+- **Read the profile at the start of every project** and apply it without asking again: the accent and support colours go into the scene's CSS variables, the name and logo into the lower third and the end screen, and the sound and motion defaults into the plan.
+- **Remember lasting rules.** When the user gives a rule for all videos ("no sound on transitions", "always deliver 4K and 480p", "my accent is now green"), add it to the profile's "Lasting rules" with the date right away, and say that you did. A rule for one video goes to that project's `work/NOTES.md` instead. When unsure which, ask.
+- **The profile is personal.** It lives in the user's home folder. Never copy it into a project that is shared or into a repository.
+
+## Every project: ask
+
+Ask these once per project and keep the answers in `work/NOTES.md`. Skip what the profile already answers.
 
 1. **Video type:** educational / explainer, talk (talking head), tutorial with screen recording, or Short (vertical, under 60 s). This sets the motion level (see the table below).
 2. **Raw material:** which clips, in which order, is there a script or outline to follow?
-3. **On-screen language(s):** one language, or two (for example native + English)?
-4. **Brand:** one accent colour, a font if they have one. If they have none, use the neutral palette in `reference/style.md`.
-5. **Sound effects:** yes, no, or "only on chapter transitions". Default is very quiet transitions only.
-6. **Deliverables:** resolution (1080p / 1440p / 4K), captions, YouTube chapter list, deadline.
+3. **On-screen language(s):** from the profile, unless this video is different.
+4. **Sound effects:** from the profile. Without a profile, the default is no effects on transitions, effects only where a sound is the subject.
+5. **Deliverables:** resolution (1080p / 1440p / 4K), captions and their languages, YouTube chapter list, deadline.
 
 ## Video types
 
@@ -39,6 +60,17 @@ Ask these once, keep the answers in `work/NOTES.md`:
 | Short | More energetic: faster reveals, bigger type, a hook in the first 2 s, captions on. Still eased, never jittery. | Allowed, still under the voice | Tight |
 
 If the user does not say, infer the type from the transcript and confirm it. Do not over-animate an educational video, and do not make a Short feel slow.
+
+## Creative direction
+
+Be creative, on purpose. A good edit explains the topic better than the speaker alone could, and it never looks like the same card pasted again and again.
+
+- **Explain, don't decorate.** For every beat ask: what would make this click for someone who has never heard of it? Draw the abstract idea (for "the model needs a lot of data", show many different faces being scanned and labelled). When a tool, language or term is named that many viewers may not know, show a small box: its name, what kind of thing it is (language, tool, model, concept) and one plain sentence.
+- **Use real material.** The video's own measured data (the waveform of the sentence being spoken, the real loudness numbers), real screenshots and screen recordings the user has, the real before and after. Real proof beats an invented example every time. Ask the user for screenshots when a beat needs one.
+- **Show mistakes honestly.** When the video talks about something that went wrong, show the actual screenshot, the note that was given and the fixed version side by side.
+- **Vary the form.** Alternate between a keyword card, a list that grows as each item is said, a counter, a full-screen board for a dense idea, a zoom into the screen, a framed insert of another video. Pick the form that fits the content, not the one used last.
+- **One idea at a time, calm motion.** Creative does not mean busy. Keep the motion level of the video type and the profile.
+- **Pitch the big pieces first.** Before building a full-screen board, a montage or a 3D scene, describe it in two lines and let the user say yes.
 
 ## The workflow
 
@@ -87,9 +119,16 @@ Fix what `verify.py` flags, rebuild, and only then hand over. Tell the user the 
 
 ### 4. Chapters
 
-Propose chapters from the transcript (topic changes, the script's sections). Suggest short titles. After approval, add `{"chapter": "..."}` items to the EDL. `cuts.py` prints a YouTube chapter list (`0:00 Intro …`) and writes `work/chapters.txt`. The first chapter must start at 0:00, and YouTube needs at least three chapters, each at least 10 s long.
+Split the video into chapters by meaning, not by clock:
 
-A chapter transition on screen is a full-frame veil (see `reference/style.md`): the chapter number, the title, and a progress row. Sub-topics inside a chapter do not get their own veil, only a small chip change.
+- One chapter per real change of topic, in the order the viewer needs to understand it. Follow the script's sections when there is a script.
+- For a 10–15 minute video that is usually 5–10 main chapters, each at least about 45 s. A short sub-topic stays inside its chapter as a chip change, not a chapter of its own.
+- Title each chapter with what the viewer gets from it ("Where the AI went wrong"), not with a vague label ("Part 3"). Short enough to read in one glance.
+- YouTube rules: the first chapter starts at 0:00, at least three chapters in ascending order, each at least 10 s long, timestamps written with colons (`0:51`, not `0.51`), in the description (not in a comment). Chapters that break a rule fail silently.
+
+Propose the list with one line on why each chapter starts where it does. After approval, add `{"chapter": "..."}` items to the EDL. `cuts.py` prints a YouTube chapter list (`0:00 Intro …`) and writes `work/chapters.txt`. The on-screen veils and the YouTube list use the same times.
+
+A chapter transition on screen is a full-frame veil (see `reference/style.md`, section 9): the chapter number, the title, and a progress row. Put 0.3–0.6 s of the clip's own room tone before each chapter so the veil never wipes across the last word.
 
 ### 5. Graphics, range by range
 
@@ -101,9 +140,12 @@ python3 $SKILL/scripts/serve.py --project . --port 5600     # http://127.0.0.1:5
 
 Work on one chapter or time range at a time, never the whole video at once. For each range:
 
-1. List the beats: the few things worth showing (numbers, steps, a comparison, a key idea, a source). **Do not put the narration on screen.** Cards are not subtitles; they carry what the voice cannot (structure, data, a picture).
-2. Lock every beat to a spoken word with `at('phrase')`. An element rises when its word is said (about 0.1 s before) and leaves only after its sentence ends.
-3. Check `?t=SECONDS` freezes at the beats, then hand over the URL.
+1. List the beats: the few things worth showing (numbers, steps, a comparison, a key idea, a source). **Do not put the narration on screen.** Cards are not subtitles; they carry what the voice cannot (structure, data, a picture). Use the creative direction above.
+2. Lock every beat to a spoken word with `at('phrase')`. An element rises when its word is said (about 0.1 s before) and leaves only after its sentence ends. `at()` returns the first match: for a phrase said more than once, pass `{ from: sectionStart }`. A number in speech may be a timestamp ("at zero eighteen" is 0:18 of a video, not 0.18 seconds); check the context before drawing it.
+3. Place the transitions (`reference/style.md`, section 9): a veil at each chapter, a blur dip where the picture jumps, a dark blur dip where a cut removes a whole stretch. Nothing on plain cuts.
+4. Check `?t=SECONDS` freezes at the beats, then hand over the URL. Always check `?t=0` too: the first frame is what YouTube and most players show before play, so nothing that belongs later may be visible there.
+
+After a re-cut, re-check every time that is tied to a source moment rather than to a word: a source time that was cut away no longer exists in the program.
 
 Rules that apply to every frame are in `reference/style.md`. Run the layout audit before each handover:
 
@@ -113,7 +155,7 @@ node $SKILL/scripts/audit.mjs http://127.0.0.1:5600/scene/ --every 0.5
 
 ### 6. Sound effects (only if wanted)
 
-Generate the library, then cue effects from the scene's timeline with `cue(t, 'whoosh')`:
+Follow the profile. Without one, put no sound on transitions; use effects where a sound is the subject (showing what a whoosh at a given level sounds like, a click on the button being explained). Generate the library, then cue effects from the scene's timeline with `cue(t, 'whoosh')`:
 
 ```bash
 python3 $SKILL/scripts/sfx.py lib --out scene/sfx            # --gain -3 makes every effect 3 dB quieter
@@ -153,4 +195,4 @@ Requirements: Python 3.10+, numpy, ffmpeg + ffprobe, Node 20+, Google Chrome or 
 
 ## Working notes
 
-Keep `work/NOTES.md` up to date: the answers from the intake, every rule the user gives ("no sound effects in this video", "effects one step quieter"), and the current version. Rules the user gives in one video usually apply to the next one; ask before assuming so.
+Keep `work/NOTES.md` up to date: the answers from the intake, every rule the user gives for this video ("effects one step quieter here"), and the current version. Rules meant for every video go into the profile (see "First run"); when you are not sure whether a rule is for this video or for all of them, ask.

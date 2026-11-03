@@ -73,7 +73,7 @@ Levels (peak, effect on its own):
 
 | Use | Start at |
 |---|---|
-| Chapter transition whoosh | −32 dBFS |
+| Chapter transition whoosh (only when the profile asks for transition sounds) | −32 dBFS |
 | UI tick / click / pop | −30 dBFS |
 | Typing | −32 dBFS |
 | Short (more energetic) | up to −26 dBFS |
@@ -81,7 +81,8 @@ Levels (peak, effect on its own):
 - Effects must sit **under** the voice and never mask a word. Avoid placing a hit on top of a stressed syllable.
 - Start quiet and let the user pull it up. Real corrections from practice: −32 dBFS was "can't hear it at all", −26 was "a bit less", −28 stuck. The same −28 whoosh was "a bit much" in a calmer video, and −34 stuck. The right level depends on the video; the user's ear decides.
 - Normalize every effect type to a similar loudness so quiet types (a soft tick) are heard as well as loud ones (a whoosh).
-- Many videos are better with no effects at all (serious educational parts, emotional parts). Ask.
+- Many videos are better with no effects at all (serious educational parts, emotional parts). Ask, or follow the creator profile.
+- **Default: no sound on transitions.** Veils, dips and board changes are silent unless the profile asks otherwise. Effects belong where a sound is the subject: demonstrating a whoosh and its level, the click of the button being explained.
 - **Sync:** effects are cued from the scene timeline (`cue(t, name)`). The render exports the cue list, and `sfx.py track` renders the full-length effects track from it. Picture and sound come from the same clock, so they cannot drift.
 - **Typing sounds** must follow the typing animation: one key sound per revealed character group, at the reveal time, with small random variation in pitch, level and timing so it does not sound like a machine gun. Never lay a generic typing loop under a typing animation; that is the classic "the keys don't match the text" mistake.
 

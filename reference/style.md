@@ -4,6 +4,8 @@ The graphics in this skill are web pages: HTML + CSS + GSAP, with three.js when 
 
 ## 1. What goes on screen
 
+The goal of every graphic is understanding. Before building a beat, decide what would make the idea click for a viewer who has never heard of it (see "Creative direction" in `SKILL.md`): a drawing of the abstract idea, a small box that says what an unfamiliar tool is, the video's own measured data, a real screenshot, a before and after.
+
 - **Never transcribe the narration onto the screen.** A card that repeats the sentence being spoken is a subtitle, not a graphic. Show what the voice cannot carry:
   - structure (steps, a list of options, a before/after)
   - numbers and data (counters, small charts)
@@ -16,7 +18,7 @@ The graphics in this skill are web pages: HTML + CSS + GSAP, with three.js when 
 
 ## 2. Palette (neutral default)
 
-Use the channel's brand colour as the single accent if they have one. Otherwise use this neutral set. Keep one accent per video: two strong accents compete.
+Take the colours from the creator profile (`reference/profile.md`) when there is one: its accent becomes `--accent`, its support colours the secondary tokens, and its avoid list is a hard limit. Use the channel's brand colour as the single accent if they have one. Otherwise use this neutral set. Keep one accent per video: two strong accents compete.
 
 Dark (default for talking heads and screen recordings):
 
@@ -115,12 +117,32 @@ Use 3D when it explains: a part being assembled, an object that is the topic, a 
 - Prewarm shaders and load every model and texture before the first frame (the template's `ASSETS` list); the renderer waits for them.
 - Keep the camera calm; let the object move.
 
-## 9. Chapter transitions and recurring elements
+## 9. Transitions and recurring elements
 
-- **Chapter veil:** a full-frame glass panel wipes across (about 2–2.6 s in total), shows "CHAPTER 02 / 05", the title (and second language), and a progress row of all chapters, then wipes off. A soft whoosh is optional. Only main chapters get a veil.
+Transitions hide jumps and mark changes of topic. Use one where something actually changes, never as decoration. All of these are in `template/script.js`.
+
+| Transition | When | What it looks like |
+|---|---|---|
+| Chapter veil | a new main chapter | a full-frame dark pane wipes in from the left behind a thin accent edge, shows "CHAPTER 03 / 08", the title (and second language) and a row of chapter marks, then wipes off to the right. About 1.5 s in total. The cut happens under the closed pane, so the viewer never sees the jump. |
+| Text veil | a section that is not a chapter: an inserted clip, a montage of an older video, the goodbye | the same pane with its own short line ("Let's watch some clips from that video") |
+| Blur dip | a cut where the picture jumps (the speaker moves, the screen changes) | the frame blurs for about 0.18 s into the cut and clears in about 0.32 s |
+| Dark blur dip | a cut that removes a whole stretch and moves to another subject | blur plus about 80 % darkening in about 0.3 s, back in about 0.55 s |
+| Speaker dip | on a full-screen board, the speaker's cut-out jumps between two takes | only the cut-out blurs and dims for a moment; the board stays still |
+| Board in / out | a full-screen board (a diagram, data) replaces the video | the dark board fades in under a veil or over about 0.7 s, never in one frame; the speaker's cut-out slides to its place on the board and back. On a board without the speaker, the cut-out does not move at all. |
+
+Rules:
+
+- **No blur on plain cuts.** If neither the picture nor the subject jumps, a straight cut is best. Blur pulses on every cut look like a glitch.
+- **Let the last word finish.** A veil or a dip starts after the last word of the section has fully decayed, on 0.3–0.6 s of the clip's own room tone. Never wipe across a word.
+- **No sound on transitions by default.** Use transition sounds only when the profile asks for them. Sound effects belong to moments where a sound is the subject.
+- **Short and identical.** Veils last about 1.5 s and are gone right after the chapter starts. Every veil in a video uses the same pane, edge and type.
+
+Recurring elements:
+
 - **Chapter chip:** a small chip in a top corner shows the current chapter number and title for the rest of the chapter.
-- **Lower third:** name and one-line role, once, early. It slides out from the edge or from behind the face cut-out and retracts the same way.
+- **Lower third:** the profile's name and role, once, early. It slides out from the edge or from behind the face cut-out and retracts the same way. The logo only if the profile allows it.
 - **Like / subscribe:** if used, one short animation in the first minute and one at the end, never in the middle of an explanation.
+- **End screen:** a calm typographic goodbye in the creator's own words ("See you in the next video"), revealed as it is said, wiped in like a veil. The video ends about one second after the last word. Do not draw a portrait or likeness of the creator unless they ask for one.
 
 ## 10. Avoid
 

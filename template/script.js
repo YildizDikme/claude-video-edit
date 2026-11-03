@@ -27,8 +27,44 @@ window.buildScene = ({ TL, at, cue, chapters, duration, stage, still }) => {
       '<text x="1000" y="610" fill="rgba(255,255,255,0.25)" font-family="Inter, sans-serif" font-size="26" text-anchor="middle">speaker</text>';
   }
 
+  /* ---------- transitions (reference/style.md, section 9) ----------
+   * veil(a, z, …)  full-frame pane: closes from a, opens from z. Chapters close it 0.55 s before the cut,
+   *                so the jump happens under the closed pane. Use veilText() for a section that is not a chapter.
+   * blurDip(t)     a cut where the picture jumps.   darkDip(t)  a cut that removes a stretch and changes subject.
+   * No sound on transitions unless the creator profile asks for it (TRANSITION_SOUND). */
+  const TRANSITION_SOUND = false;
+  const veil = (id, a, z, kick, title, subtitle = '', prog = '') => {
+    const v = $('#veil').cloneNode(true);
+    v.id = id;
+    $('#veil').after(v);
+    v.querySelector('.kick').textContent = kick;
+    v.querySelector('.t1').textContent = title;
+    v.querySelector('.t2').textContent = subtitle;
+    if (prog) v.querySelector('.prog').innerHTML = prog; else v.querySelector('.prog').remove();
+    TL.set(v, { autoAlpha: 0 }, 0);
+    TL.set(v, { autoAlpha: 1 }, a);
+    TL.fromTo(v.querySelector('.pane'), { clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0% 0 0)', duration: 0.45, ease: MOVE, immediateRender: false }, a);
+    TL.fromTo(v.querySelector('.edge'), { x: 0, opacity: 1 }, { x: 1917, duration: 0.45, ease: MOVE, immediateRender: false }, a);
+    TL.set(v.querySelector('.edge'), { opacity: 0 }, a + 0.45);
+    TL.fromTo(v.querySelector('.inner'), { autoAlpha: 0, x: -30 }, { autoAlpha: 1, x: 0, duration: 0.5, ease: IN, immediateRender: false }, a + 0.2);
+    TL.to(v.querySelector('.inner'), { autoAlpha: 0, x: 30, duration: 0.3, ease: OUT }, z - 0.32);
+    TL.fromTo(v.querySelector('.pane'), { clipPath: 'inset(0 0% 0 0)' }, { clipPath: 'inset(0 0% 0 100%)', duration: 0.5, ease: MOVE, immediateRender: false }, z);
+    TL.set(v, { autoAlpha: 0 }, z + 0.52);
+    if (TRANSITION_SOUND) cue(a, 'soft-whoosh', -6);
+  };
+  const veilText = (id, a, z, kick, line, line2 = '') => veil(id, a, z, kick, line, line2);
+  const video = $('#v');
+  const dip = (t, blur, dark, tin, tout) => {
+    if (t == null) return;
+    TL.fromTo(video, { filter: 'blur(0px) brightness(1)' }, { filter: `blur(${blur}px) brightness(${1 - dark})`, duration: tin, ease: 'power2.in', immediateRender: false }, t - tin);
+    TL.to(video, { filter: 'blur(0px) brightness(1)', duration: tout, ease: 'power2.out' }, t);
+    TL.set(video, { filter: 'none' }, t + tout);   // no filter left on the video between dips (it costs every frame)
+  };
+  const blurDip = (t) => dip(t, 16, 0, 0.18, 0.32);
+  const darkDip = (t) => dip(t, 18, 0.8, 0.32, 0.55);
+
   /* ---------- chapters: a veil for every chapter after the first, a chip for each ---------- */
-  const VEIL = 2.4;   // seconds: wipe in, hold, wipe out
+  const VEIL = 1.5;   // seconds: about 0.55 s before the chapter cut to 0.95 s after it
   chapters.forEach((ch, i) => {
     const no = String(i + 1).padStart(2, '0');
     const chip = $('#chip').cloneNode(true);
@@ -38,29 +74,17 @@ window.buildScene = ({ TL, at, cue, chapters, duration, stage, still }) => {
     chip.querySelector('.tt').textContent = ch.title;
     $('#chip').after(chip);
     const end = i + 1 < chapters.length ? chapters[i + 1].time : duration;
-    const shown = i === 0 ? ch.time + 0.6 : ch.time + VEIL - 0.2;
+    const shown = i === 0 ? ch.time + 0.6 : ch.time + VEIL - 0.4;
     cardIn(chip, shown, 0.6);
-    cardOut(chip, Math.max(shown + 1, end - 0.05), 0.3);
+    cardOut(chip, Math.max(shown + 1, end - 0.6), 0.3);
     if (i === 0) return;
 
-    const v = $('#veil').cloneNode(true), t = ch.time;
-    v.id = `veil${i}`;
-    $('#veil').after(v);
-    v.querySelector('.kick').textContent = `Chapter ${no} / ${String(chapters.length).padStart(2, '0')}`;
-    v.querySelector('.t1').textContent = ch.title;
-    v.querySelector('.t2').textContent = ch.subtitle || '';
-    v.querySelector('.prog').innerHTML = chapters.map((c, k) => `<span class="${k === i ? 'on' : ''}">${String(k + 1).padStart(2, '0')}</span>`).join('<b></b>');
-    TL.set(v, { autoAlpha: 1 }, t);
-    TL.fromTo(v.querySelector('.pane'), { clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0% 0 0)', duration: 0.9, ease: MOVE, immediateRender: false }, t);
-    TL.fromTo(v.querySelector('.edge'), { x: 0, opacity: 1 }, { x: 1917, duration: 0.9, ease: MOVE, immediateRender: false }, t);
-    TL.set(v.querySelector('.edge'), { opacity: 0 }, t + 0.9);
-    TL.fromTo(v.querySelector('.inner'), { autoAlpha: 0, x: -30 }, { autoAlpha: 1, x: 0, duration: 0.6, ease: IN, immediateRender: false }, t + 0.45);
-    TL.to(v.querySelector('.inner'), { autoAlpha: 0, x: 30, duration: 0.4, ease: OUT }, t + VEIL - 1.0);
-    TL.fromTo(v.querySelector('.pane'), { clipPath: 'inset(0 0% 0 0)' }, { clipPath: 'inset(0 0% 0 100%)', duration: 0.8, ease: MOVE, immediateRender: false }, t + VEIL - 0.8);
-    TL.set(v, { autoAlpha: 0 }, t + VEIL);
-    cue(t, 'whoosh');
-    cue(t + VEIL - 0.8, 'whoosh', -4);
+    const prog = chapters.map((c, k) => `<span class="${k === i ? 'on' : ''}">${String(k + 1).padStart(2, '0')}</span>`).join('<b></b>');
+    veil(`veil${i}`, ch.time - 0.55, ch.time + 0.95, `Chapter ${no} / ${String(chapters.length).padStart(2, '0')}`, ch.title, ch.subtitle || '', prog);
   });
+  // Examples, not used by the demo: a text veil before an inserted montage, and dips at two kinds of cut.
+  //   veilText('veilClips', t0, t0 + 1.9, 'From the last video', "Let's watch some clips");
+  //   blurDip(timeOfAJumpCut);  darkDip(timeOfATopicCut);
 
   /* ---------- lower third: once, early ---------- */
   const lower = $('#lower');
