@@ -182,10 +182,13 @@
     if (TL.duration() < duration) TL.set({}, {}, duration);   // the timeline spans the whole program
 
     window.__scene = { render, SFX, missing, duration, TL, fps: PROGRAM.fps || 30 };
-    window.__sceneReady = () => Promise.all(ASSETS);
-    await loadSfx();
     const t0 = Q.has('t') ? +Q.get('t') : 0;
-    if (STILL) { await render(t0); return; }
+    // Render mode draws its first frame here, and __sceneReady waits for it: otherwise an external render(t)
+    // could be overtaken by this boot render finishing later (video canplay) and resetting the stage to t0.
+    const boot = STILL ? Promise.all(ASSETS).then(() => render(t0)) : Promise.all(ASSETS);
+    window.__sceneReady = () => boot;
+    await loadSfx();
+    if (STILL) { await boot; return; }
     seek(t0);
     requestAnimationFrame((n) => { last = n; tick(n); });
   })();
